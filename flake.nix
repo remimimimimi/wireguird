@@ -4,15 +4,15 @@
   };
   outputs = inputs @ {nixpkgs, ...}: let
     systems = ["x86_64-linux"];
-    eachSystem = with nixpkgs.lib; f: foldAttrs mergeAttrs { }
+    eachSystem = with nixpkgs.lib; systems: f: foldAttrs mergeAttrs { }
       (map (s: mapAttrs (_: v: { ${s} = v; }) (f s)) systems);
   in
-    eachSystem (system:
+    eachSystem systems (system:
       let pkgs = nixpkgs.legacyPackages.${system}; in
       {
         packages = rec {
-          hello = pkgs.hello;
-          default = hello;
+          wireguird = import ./default.nix {inherit pkgs;};
+          default = wireguird;
         };
 
         devShells.default = import ./shell.nix {inherit pkgs;};
